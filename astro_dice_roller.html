@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercury Did It! Dice Roller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4facb5 0%, #6a5acd 50%, #1e3a5f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, #ff1493, #9370db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .subtitle {
+            color: #4facb5;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .roll-button {
+            background: linear-gradient(135deg, #ff1493, #9370db);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.4);
+            transition: all 0.3s ease;
+            margin: 20px 0;
+        }
+        
+        .roll-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 20, 147, 0.6);
+        }
+        
+        .roll-button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(79, 172, 181, 0.1), rgba(147, 112, 219, 0.1));
+            border-radius: 15px;
+            border: 3px solid #9370db;
+        }
+        
+        .dice-results {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .die {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .die-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .die-result {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #9370db;
+            margin: 10px 0;
+        }
+        
+        .excuse-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #333;
+            font-style: italic;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 1.5s infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .roll-button {
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+            
+            .die {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mercury Did It! <span class="sparkle">✨</span></h1>
+        <p class="subtitle">Roll Your Cosmic Excuse</p>
+        
+        <button class="roll-button" onclick="rollDice()">
+            🎲 ROLL THE DICE! 🎲
+        </button>
+        
+        <div id="results" class="results hidden">
+            <div class="dice-results">
+                <div class="die">
+                    <div class="die-label">Planet</div>
+                    <div class="die-result" id="planet-result"></div>
+                </div>
+                <div class="die">
+                    <div class="die-label">Sign</div>
+                    <div class="die-result" id="sign-result"></div>
+                </div>
+                <div class="die">
+                    <div class="die-label">House</div>
+                    <div class="die-result" id="house-result"></div>
+                </div>
+            </div>
+            
+            <div class="excuse-text" id="excuse-text"></div>
+        </div>
+    </div>
+
+    <script>
+        const planets = [
+            { symbol: '☉', name: 'Sun', text: 'My inner child drew on the walls in squid ink when' },
+            { symbol: '☽', name: 'Moon', text: 'My emotions spilled into the fridge and knocked over the mustard when' },
+            { symbol: '☿', name: 'Mercury', text: 'Two snakes twisted around my tongue as' },
+            { symbol: '♀', name: 'Venus', text: 'I tripped over a giant clam shell just as' },
+            { symbol: '♂', name: 'Mars', text: 'I got into a fight with an ostrich when' },
+            { symbol: '♃', name: 'Jupiter', text: 'I drank way too many Left Sandals and' },
+            { symbol: '♄', name: 'Saturn', text: 'My plan was perfect until' },
+            { symbol: '♅', name: 'Uranus', text: 'Lightning struck me 66 times in the h-h-head because' },
+            { symbol: '♆', name: 'Neptune', text: 'Reality melted my green beans into the floorboards while' },
+            { symbol: '♇', name: 'Pluto', text: 'The dead tore open the earth, busted some moves, and' },
+            { symbol: '☊', name: 'Rahu', text: 'This giant dragon\'s head floated beside me as' },
+            { symbol: '☋', name: 'Ketu', text: 'Karma caught up with me while' }
+        ];
+
+        const signs = [
+            { symbol: '♈', name: 'Aries', text: 'an impulsive flaming rocket blasted my common sense' },
+            { symbol: '♉', name: 'Taurus', text: 'a velvet couch of melding comfort glued me to bad choices' },
+            { symbol: '♊', name: 'Gemini', text: 'a disco ball of squirrels spun my brain into glittery confetti' },
+            { symbol: '♋', name: 'Cancer', text: 'a tsunami of someone else\'s feelings drowned my logic' },
+            { symbol: '♌', name: 'Leo', text: 'the shimmering tiara of drama demanded I reclaim the spotlight' },
+            { symbol: '♍', name: 'Virgo', text: 'a rosy robot maid of perfectionism vacuumed up my sanity' },
+            { symbol: '♎', name: 'Libra', text: 'a sparkling seesaw of indecision flipped my brain upside down' },
+            { symbol: '♏', name: 'Scorpio', text: 'a phoenix glared at my soul and set the neighborhood on fire' },
+            { symbol: '♐', name: 'Sagittarius', text: 'a runaway unicycle of optimism pedaled me into the Forest of Forgetfulness' },
+            { symbol: '♑', name: 'Capricorn', text: 'a mountain of ambition buried me in an avalanche of bureaucracy' },
+            { symbol: '♒', name: 'Aquarius', text: 'the mothership I phoned for decades ago finally hovered above me' },
+            { symbol: '♓', name: 'Pisces', text: 'the Kraken took up the jaw harp and it called to me across an ocean of time' }
+        ];
+
+        const houses = [
+            { number: '1st', text: 'so I now identify as a disgruntled, yet delightful yeti.' },
+            { number: '2nd', text: 'so my wallet is currently a black hole of delicious organic gummy bears!' },
+            { number: '3rd', text: 'and now I\'m locked into Karaoke Thursdays with a parrot named Sal.' },
+            { number: '4th', text: 'so that\'s why I live in a haunted crate of jellybeans.' },
+            { number: '5th', text: 'and that\'s when the chalk drawings came to life...' },
+            { number: '6th', text: 'which is why there are now 1,000 slightly bent hula hoops in my basement. 1,000! I counted!!!' },
+            { number: '7th', text: 'and now the whole West side thinks I owe them foot massages!' },
+            { number: '8th', text: 'so I broke open a lava lamp and opened a portal to the sixth level of Hell...wanna come?' },
+            { number: '9th', text: 'and would you believe Dionysus asked me to stomp some cherries with him?' },
+            { number: '10th', text: 'so now the whole world thinks physics is a Euclidian option...and they\'re not wrong!' },
+            { number: '11th', text: 'so the revolution has already begun and does anything else really matter at this point? Perspective!' },
+            { number: '12th', text: 'and I fell into a pocket dimension where all the lost socks end up. Millions of them and not a single pair to be seen!' }
+        ];
+
+        function rollDice() {
+            const planet = planets[Math.floor(Math.random() * planets.length)];
+            const sign = signs[Math.floor(Math.random() * signs.length)];
+            const house = houses[Math.floor(Math.random() * houses.length)];
+
+            document.getElementById('planet-result').innerHTML = `${planet.symbol}<br>${planet.name}`;
+            document.getElementById('sign-result').innerHTML = `${sign.symbol}<br>${sign.name}`;
+            document.getElementById('house-result').innerHTML = `${house.number}<br>House`;
+
+            const excuse = `"${planet.text}...${sign.text}...${house.text}"`;
+            document.getElementById('excuse-text').innerHTML = excuse;
+
+            document.getElementById('results').classList.remove('hidden');
+            
+            // Smooth scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
